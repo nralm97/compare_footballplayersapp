@@ -4,6 +4,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import boto3
 
+
+st.write('Hello wordl)
+
+
+'''
 #----------------------LECTURA DE DATOS DESDE BUCKET S3
 # Configurar las credenciales de AWS
 aws_access_key_id = 'AKIAZTXLOUXDGLBX4VQZ'
@@ -57,3 +62,5 @@ df_temp = df[['xG', 'Goles']]
 
 #-----------------graficando y lanzando app con streamlit
 st.line_chart(df_temp)
+
+'''
