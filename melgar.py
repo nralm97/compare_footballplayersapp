@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import boto3
 
 
-st.write('Hello wordl)
+st.write('Hello world')
 
 
 '''
