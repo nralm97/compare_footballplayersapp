@@ -4,9 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import boto3
 
-
-st.write('Hello world')
-
+file_name = 'Team Stats Melgar.xlsx'
 
 '''
 #----------------------LECTURA DE DATOS DESDE BUCKET S3
@@ -16,7 +14,6 @@ aws_secret_access_key = 'SXhLONxzwyeKvoEA9aisffSpF2YVqgA8DjUX8AlU'
 region_name = 'us-west-2'
 # Nombre del bucket de S3 y nombre del archivo Excel
 bucket_name = 'prueba2007'
-file_name = 'Team Stats Melgar.xlsx'
 # Crear una instancia del cliente de S3
 s3_client = boto3.client('s3')
 # Leer el archivo Excel desde S3
@@ -24,7 +21,9 @@ response = s3_client.get_object(Bucket=bucket_name, Key=file_name)
 data = response['Body'].read()
 # Crear un DataFrame de pandas con los datos del archivo Excel
 df = pd.read_excel(data)
+'''
 
+df = pd.read_excel(file_name)
 #---------------limpieza de datos
 df = df.drop(0) #eliminar primera fila
 metricas = ['Fecha', 'Localia','Partido', 'Competición', 'Duración', 'Seleccionar esquema', 'Goles', 'xG', 'Tiros', 'Tiros a puerta',
@@ -63,4 +62,4 @@ df_temp = df[['xG', 'Goles']]
 #-----------------graficando y lanzando app con streamlit
 st.line_chart(df_temp)
 
-'''
+
