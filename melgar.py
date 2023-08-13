@@ -6,23 +6,6 @@ import boto3
 
 file_name = 'Team Stats Melgar.xlsx'
 
-'''
-#----------------------LECTURA DE DATOS DESDE BUCKET S3
-# Configurar las credenciales de AWS
-aws_access_key_id = 'AKIAZTXLOUXDGLBX4VQZ'
-aws_secret_access_key = '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'
-region_name = 'us-west-2'
-# Nombre del bucket de S3 y nombre del archivo Excel
-bucket_name = 'prueba2007'
-# Crear una instancia del cliente de S3
-s3_client = boto3.client('s3')
-# Leer el archivo Excel desde S3
-response = s3_client.get_object(Bucket=bucket_name, Key=file_name)
-data = response['Body'].read()
-# Crear un DataFrame de pandas con los datos del archivo Excel
-df = pd.read_excel(data)
-'''
-
 df = pd.read_excel(file_name)
 #---------------limpieza de datos
 df = df.drop(0) #eliminar primera fila
