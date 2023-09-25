@@ -47,57 +47,123 @@ seleccion = ['Jugador','Pases/90', 'Precisión pases, %', 'Pases hacia adelante/
          'Duelos ofensivos/90', 'Duelos ofensivos ganados, %']
 df = df_melgar[seleccion]
 
+#---- Promedio de las estadisticas del equipo-
+columnas_numericas = df.select_dtypes(include='number')
+promedios = columnas_numericas.mean().to_dict()
+promedios = {clave: [valor] for clave, valor in promedios.items()} #colocar el valor en una lista para poder crear un dataframe con esto
+promedios['Jugador'] = 'Promedio'
+df_promedios = pd.DataFrame(promedios)
+
+# ENCABEZADO: escudo Melgar + escudo Liga1
+colA, colB, colC = st.columns([1, 6, 1])
+with colA:
+    st.image('escudo.jpg', use_column_width=True)
+with colB:
+    pass
+    #st.write("Aquí van tus datos, como texto o gráficos")
+with colC:
+    st.image('liga1.jpg', use_column_width=True)
+
+
 #-------------- FILTRO------------
 filter_player = st.selectbox('Jugador', df['Jugador'].unique())
 df_filtrado = df.copy()
 if filter_player != 'Todos':
     df_filtrado = df_filtrado[df_filtrado['Jugador'] == filter_player]
 
-#------------- PASES - GRAFICO DE BARRAS----
-# Define los colores que deseas asignar a cada valor
-metricas = ['Pases/90',
-            'Pases laterales/90','Pases hacia adelante/90', 'Pases hacia atrás/90',
-            'Pases largos/90']
-colores = ['#F71B05','#20F712','#1CC511','#118D09', '#1E06B4']
-color_discrete_map = {key: value for key, value in zip(metricas, colores)}
-# Crea el gráfico de barras múltiples con colores asignados
-fig = px.bar(df_filtrado, y='Jugador', x=metricas, barmode='group', orientation='h',
-             color_discrete_map=color_discrete_map)
-# Agrega título y etiquetas de ejes
-fig.update_layout(title='PASES',
-                  xaxis_title='Valor/90 min',
-                  yaxis_title='Jugador')
-st.plotly_chart(fig)
+#---------
+
+df_filtrado = pd.concat([df_filtrado, df_promedios], ignore_index=True)
+
+#-----------------------------  GENERACIÓN DE GRAFICOS ---------------
+
+#---- PASES | GRAFICO DE BARRAS
+metricas = ['Jugador','Pases/90','Pases laterales/90','Pases hacia adelante/90', 'Pases hacia atrás/90','Pases largos/90']
+df_filtrado1 = df_filtrado[metricas]
+# Crear un gráfico de barras y líneas
+fig_barras_pases = go.Figure()
+# Añadir las barras para la fila 'A'
+fig_barras_pases.add_trace(go.Bar(x=df_filtrado1.columns[1:], y=df_filtrado1.loc[0, df_filtrado1.columns[1:]], name='Pases', marker_color='blue'))
+# Añadir las líneas para la fila 'promedio'
+fig_barras_pases.add_trace(go.Scatter(x=df_filtrado1.columns[1:], y=df_filtrado1.loc[1, df_filtrado1.columns[1:]], mode='lines+markers', name='promedio', line=dict(color='red')))
+# Actualizar el diseño del gráfico
+fig_barras_pases.update_layout(
+    title='Pases/90 según tipo y Promedio del equipo',
+    barmode='group'
+)
+fig_barras_pases.update_layout(
+    width=500,
+    height=300,
+)
+
+#------- DUELOS | GRAFICO DE BARRAS
+metricas2 = ['Jugador','Duelos defensivos/90', 'Duelos ofensivos/90', 'Duelos aéreos/90']
+df_filtrado2 = df_filtrado[metricas2]
+# Crear un gráfico de barras y líneas
+fig_barras_duelos = go.Figure()
+# Añadir las barras para la fila 'A'
+fig_barras_duelos.add_trace(go.Bar(x=df_filtrado2.columns[1:], y=df_filtrado2.loc[0, df_filtrado2.columns[1:]], name='Duelos', marker_color='blue'))
+# Añadir las líneas para la fila 'promedio'
+fig_barras_duelos.add_trace(go.Scatter(x=df_filtrado2.columns[1:], y=df_filtrado2.loc[1, df_filtrado2.columns[1:]], mode='lines+markers', name='promedio', line=dict(color='red')))
+# Actualizar el diseño del gráfico
+fig_barras_duelos.update_layout(
+    title='Duelos/90 según tipo y Promedio del equipo',
+    barmode='group'
+)
+fig_barras_duelos.update_layout(
+    width=500,
+    height=260,
+)
 
 
-#------------- DUELOS - GRAFICO DE BARRAS----
-metricas2 = ['Duelos defensivos/90', 'Duelos ofensivos/90', 'Duelos aéreos/90']
-colores2 = ['#A72DCA','#1BE2E5', '#17096E']
-color_discrete_map2 = {key: value for key, value in zip(metricas2, colores2)}
-# Crea el gráfico de barras múltiples con colores asignados
-fig2 = px.bar(df_filtrado, y='Jugador', x=metricas2, barmode='group', orientation='h',
-             color_discrete_map=color_discrete_map2)
-# Agrega título y etiquetas de ejes
-fig2.update_layout(title='DUELOS',
-                  xaxis_title='Valor/90 min',
-                  yaxis_title='Jugador')
-st.plotly_chart(fig2)
-
-#----------------
-# Crear el gráfico de tacómetro
-fig_gauge = go.Figure(go.Indicator(
-    domain={'x': [0.6, 1], 'y': [0.2, 0.8]},
-    value=75,
+# ----INDICADOR PASES --- 
+fig_percent_pases = go.Figure(go.Indicator(
     mode="gauge+number",
-    title={'text': "Tacómetro"},
-    gauge={'axis': {'range': [None, 100]},
+    value= df_filtrado.reset_index(drop=True).loc[0, 'Precisión pases, %'],
+    title={'text': "% Precisión pases totales"},
+    gauge={'axis': {'range': [0, 100]},
            'bar': {'color': "darkblue"},
            'steps': [
                {'range': [0, 50], 'color': "lightgray"},
                {'range': [50, 100], 'color': "gray"}]
            }
 ))
+fig_percent_pases.update_layout(
+    width=250,  # Ancho en píxeles
+    height=250,  # Altura en píxeles
+)
 
-st.plotly_chart(fig_gauge)
+#------
+fig_percent_duelos = go.Figure(go.Indicator(
+    mode="gauge+number",
+    value= df_filtrado.reset_index(drop=True).loc[0, 'Duelos aéreos ganados, %'],
+    title={'text': "% Precisión duelos aéreos"},
+    gauge={'axis': {'range': [0, 100]},
+           'bar': {'color': "darkblue"},
+           'steps': [
+               {'range': [0, 50], 'color': "lightgray"},
+               {'range': [50, 100], 'color': "gray"}]
+           }
+))
+fig_percent_duelos.update_layout(
+    width=250,  # Ancho en píxeles
+    height=250,  # Altura en píxeles
+)
+
+
+#----------------------- DISEÑO DE LA PAGINA -----------
+col11, col12= st.columns([5, 1])
+with col11:
+    st.plotly_chart(fig_barras_pases)
+
+with col12:
+    st.plotly_chart(fig_percent_pases)
+
+col21, col22= st.columns([5, 1])
+with col21:
+    st.plotly_chart(fig_barras_duelos)
+
+with col22:
+    st.plotly_chart(fig_percent_duelos)
 
 
