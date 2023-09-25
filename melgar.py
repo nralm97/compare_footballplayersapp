@@ -83,7 +83,7 @@ df_filtrado1 = df_filtrado[metricas]
 # Crear un gráfico de barras y líneas
 fig_barras_pases = go.Figure()
 # Añadir las barras para la fila 'A'
-fig_barras_pases.add_trace(go.Bar(x=df_filtrado1.columns[1:], y=df_filtrado1.loc[0, df_filtrado1.columns[1:]], name='Pases', marker_color='blue'))
+fig_barras_pases.add_trace(go.Bar(x=df_filtrado1.columns[1:], y=df_filtrado1.loc[0, df_filtrado1.columns[1:]], name='Pases', text=df_filtrado1.loc[0, df_filtrado1.columns[1:]], marker_color='blue'))
 # Añadir las líneas para la fila 'promedio'
 fig_barras_pases.add_trace(go.Scatter(x=df_filtrado1.columns[1:], y=df_filtrado1.loc[1, df_filtrado1.columns[1:]], mode='lines+markers', name='promedio', line=dict(color='red')))
 # Actualizar el diseño del gráfico
@@ -102,7 +102,7 @@ df_filtrado2 = df_filtrado[metricas2]
 # Crear un gráfico de barras y líneas
 fig_barras_duelos = go.Figure()
 # Añadir las barras para la fila 'A'
-fig_barras_duelos.add_trace(go.Bar(x=df_filtrado2.columns[1:], y=df_filtrado2.loc[0, df_filtrado2.columns[1:]], name='Duelos', marker_color='blue'))
+fig_barras_duelos.add_trace(go.Bar(x=df_filtrado2.columns[1:], y=df_filtrado2.loc[0, df_filtrado2.columns[1:]], name='Duelos', text=df_filtrado2.loc[0, df_filtrado2.columns[1:]], marker_color='blue'))
 # Añadir las líneas para la fila 'promedio'
 fig_barras_duelos.add_trace(go.Scatter(x=df_filtrado2.columns[1:], y=df_filtrado2.loc[1, df_filtrado2.columns[1:]], mode='lines+markers', name='promedio', line=dict(color='red')))
 # Actualizar el diseño del gráfico
