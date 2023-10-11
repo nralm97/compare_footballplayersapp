@@ -4,11 +4,28 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.graph_objects as go
-
-
+import boto3
+from io import BytesIO
 #----------------------------- DATA --------------------------
 #------------------------------------------------------------
-df2 = pd.read_excel('Liga1_2023_080623.xlsx')
+# Configurar las credenciales de AWS
+s3 = boto3.client('s3',
+                  aws_access_key_id='AKIAR7OO4KTVM3CTOPHQ',
+                  aws_secret_access_key='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')
+# Nombre del archivo y nombre del bucket en S3
+bucket_name = 'bucket-melgar'
+file_name = 'Search results.xlsx'
+# Leer el archivo Excel desde S3
+obj = s3.get_object(Bucket=bucket_name, Key=file_name)
+excel_data = obj['Body'].read()
+# Utilizar BytesIO para crear un buffer en memoria
+buffer = BytesIO(excel_data)
+# Leer el archivo Excel desde el buffer
+df2 = pd.read_excel(buffer)
+
+
+
+#df2 = pd.read_excel('Search results.xlsx')
 #Cambiar de nombre las columnas
 columnas = ['Jugador', 'Equipo', 'Equipo durante el periodo seleccionado', 'Posición específica', 'Edad', 'Valor de mercado',
  'Vencimiento contrato', 'Partidos jugados', 'Minutos jugados', 'Goles', 'xG', 'Asistencias', 'xA', 'Duelos/90',
@@ -71,7 +88,7 @@ df_filtrado = df.copy()
 if filter_player != 'Todos':
     df_filtrado = df_filtrado[df_filtrado['Jugador'] == filter_player]
 
-#---------
+#-----------------
 
 df_filtrado = pd.concat([df_filtrado, df_promedios], ignore_index=True)
 
@@ -88,7 +105,7 @@ fig_barras_pases.add_trace(go.Bar(x=df_filtrado1.columns[1:], y=df_filtrado1.loc
 fig_barras_pases.add_trace(go.Scatter(x=df_filtrado1.columns[1:], y=df_filtrado1.loc[1, df_filtrado1.columns[1:]], mode='lines+markers', name='promedio', line=dict(color='red')))
 # Actualizar el diseño del gráfico
 fig_barras_pases.update_layout(
-    title='Pases/90 según tipo y Promedio del equipo',
+    title='Pases/90 y promedio del equipo',
     barmode='group'
 )
 fig_barras_pases.update_layout(
@@ -102,19 +119,19 @@ df_filtrado2 = df_filtrado[metricas2]
 # Crear un gráfico de barras y líneas
 fig_barras_duelos = go.Figure()
 # Añadir las barras para la fila 'A'
-fig_barras_duelos.add_trace(go.Bar(x=df_filtrado2.columns[1:], y=df_filtrado2.loc[0, df_filtrado2.columns[1:]], name='Duelos', text=df_filtrado2.loc[0, df_filtrado2.columns[1:]], marker_color='blue'))
+valores2 = df_filtrado2.loc[0, df_filtrado2.columns[1:]]
+fig_barras_duelos.add_trace(go.Bar(x=df_filtrado2.columns[1:], y=df_filtrado2.loc[0, df_filtrado2.columns[1:]],text=df_filtrado2.loc[0, df_filtrado2.columns[1:]], name='Duelos', marker_color='blue'))
 # Añadir las líneas para la fila 'promedio'
 fig_barras_duelos.add_trace(go.Scatter(x=df_filtrado2.columns[1:], y=df_filtrado2.loc[1, df_filtrado2.columns[1:]], mode='lines+markers', name='promedio', line=dict(color='red')))
 # Actualizar el diseño del gráfico
 fig_barras_duelos.update_layout(
-    title='Duelos/90 según tipo y Promedio del equipo',
+    title='Duelos/90 y promedio del equipo',
     barmode='group'
 )
 fig_barras_duelos.update_layout(
     width=500,
     height=260,
 )
-
 
 # ----INDICADOR PASES --- 
 fig_percent_pases = go.Figure(go.Indicator(
